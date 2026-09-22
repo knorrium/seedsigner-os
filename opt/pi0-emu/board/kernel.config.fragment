@@ -1,0 +1,26 @@
+# Emulation-image kernel additions, merged on top of ../pi0/board/kernel.config.
+# Keep drivers built-in because the base configuration disables modules.
+# NOTE: the release config sets CONFIG_MODULES=n, so everything here must be
+# built-in (=y), never =m.
+
+# Power domains are required for BCM2835 graphics/display firmware.
+CONFIG_PM=y
+CONFIG_RASPBERRYPI_POWER=y
+CONFIG_DEVTMPFS=y
+CONFIG_DEVTMPFS_MOUNT=y
+
+# NET is selected by UNIX domain sockets in this kernel; explicitly suppress
+# protocol stacks and the default-on wireless menu.
+# CONFIG_INET is not set
+# CONFIG_PACKET is not set
+# CONFIG_WIRELESS is not set
+# CONFIG_WLAN is not set
+# CONFIG_BLUETOOTH is not set
+
+# GPIO keys are exposed as an evdev keyboard by a device-tree overlay.
+CONFIG_INPUT=y
+CONFIG_INPUT_EVDEV=y
+CONFIG_KEYBOARD_GPIO=y
+
+# Persistent ROM/save partition.
+CONFIG_EXT4_FS=y

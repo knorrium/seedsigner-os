@@ -1,0 +1,7 @@
+config BR2_PACKAGE_FBCP_ST7789
+	bool "fbcp-st7789"
+	depends on BR2_INSTALL_LIBSTDCPP
+	select BR2_PACKAGE_RPI_USERLAND
+	help
+	  Low-latency VideoCore framebuffer mirror for the Waveshare 1.3-inch
+	  240x240 ST7789VW HAT, tuned for the single-core Raspberry Pi Zero.

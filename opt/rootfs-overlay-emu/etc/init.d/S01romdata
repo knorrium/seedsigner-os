@@ -1,0 +1,57 @@
+#!/bin/sh
+
+DATA_DEV=/dev/mmcblk0p2
+DATA_SYS=/sys/class/block/mmcblk0p2
+DATA_MNT=/mnt/romdata
+DISK_DEV=/dev/mmcblk0
+DISK_SYS=/sys/class/block/mmcblk0
+BOOT_DEV=/dev/mmcblk0p1
+BOOT_MNT=/mnt/boot
+
+boot_log() {
+	mkdir -p "$BOOT_MNT"
+	if ! grep -q " $BOOT_MNT " /proc/mounts; then
+		mount -t vfat -o sync "$BOOT_DEV" "$BOOT_MNT" 2>/dev/null || return 0
+	fi
+	printf '%s\n' "$*" >> "$BOOT_MNT/emulation-boot.log"
+}
+
+grow_data_partition() {
+	[ -r "$DISK_SYS/size" ] && [ -r "$DATA_SYS/start" ] && [ -r "$DATA_SYS/size" ] || return 0
+	command -v parted >/dev/null 2>&1 && command -v resize2fs >/dev/null 2>&1 || return 0
+	disk_sz=$(cat "$DISK_SYS/size")
+	p_start=$(cat "$DATA_SYS/start")
+	p_sz=$(cat "$DATA_SYS/size")
+	[ $((disk_sz - p_start - p_sz)) -gt 131072 ] || return 0
+	[ -b "$DISK_DEV" ] || mknod "$DISK_DEV" b $(sed 's/:/ /' "$DISK_SYS/dev")
+	parted -s "$DISK_DEV" resizepart 2 100% || return 0
+	partprobe "$DISK_DEV" 2>/dev/null || true
+	e2fsck -fp "$DATA_DEV" >/dev/null 2>&1 || true
+	resize2fs "$DATA_DEV" || true
+}
+
+case "$1" in
+	start)
+		boot_log "S01romdata started"
+		i=0
+		while [ ! -e "$DATA_SYS/dev" ] && [ "$i" -lt 10 ]; do sleep 1; i=$((i + 1)); done
+		if [ ! -b "$DATA_DEV" ] && [ -r "$DATA_SYS/dev" ]; then
+			mknod "$DATA_DEV" b $(sed 's/:/ /' "$DATA_SYS/dev")
+		fi
+		if [ ! -b "$DATA_DEV" ]; then
+			boot_log "ERROR: $DATA_DEV was not found"
+			exit 0
+		fi
+		grow_data_partition
+		mkdir -p "$DATA_MNT"
+		if ! mount -t ext4 -o nodev,nosuid,noexec "$DATA_DEV" "$DATA_MNT"; then
+			boot_log "ERROR: failed to mount $DATA_DEV"
+			exit 0
+		fi
+		mkdir -p "$DATA_MNT"/roms/gb "$DATA_MNT"/roms/nes "$DATA_MNT"/saves "$DATA_MNT"/states "$DATA_MNT"/config
+		boot_log "Mounted $DATA_DEV at $DATA_MNT"
+		;;
+	stop)
+		umount "$DATA_MNT" 2>/dev/null || true
+		;;
+esac
