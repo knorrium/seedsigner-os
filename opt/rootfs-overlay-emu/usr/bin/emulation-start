@@ -1,0 +1,21 @@
+#!/bin/sh
+
+export SDL_VIDEODRIVER=rpi
+export SDL_AUDIODRIVER=dummy
+export XDG_CONFIG_HOME=/mnt/romdata/config
+
+/usr/bin/fbcp-st7789 &
+
+# Wait until the persistent partition is mounted and initialized.
+i=0
+while ! grep -q ' /mnt/romdata ' /proc/mounts && [ "$i" -lt 10 ]; do sleep 1; i=$((i + 1)); done
+
+mkdir -p /mnt/romdata/config/retroarch
+[ -f /mnt/romdata/config/retroarch/retroarch.cfg ] || \
+	cp /etc/retroarch/retroarch.cfg /mnt/romdata/config/retroarch/retroarch.cfg
+
+# RGUI is usable at 240x240. Users select Load Content, then the matching core.
+while true; do
+	/usr/bin/retroarch --config /mnt/romdata/config/retroarch/retroarch.cfg --menu
+	sleep 1
+done

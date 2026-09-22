@@ -1,0 +1,39 @@
+start_file=start_x.elf
+fixup_file=fixup_x.dat
+
+# Kernel location
+kernel=zImage
+
+# How much memory in MB to assign to the GPU on Pi models having
+gpu_mem=64
+
+# Enable Camera module
+start_x=1
+
+# Enable SPI
+dtparam=spi=on
+
+# Set the bootloader delay to 0 seconds. The default is 1s if not specified
+boot_delay=0
+disable_splash=1
+force_turbo=1
+
+### Dev image additions ###
+
+# fbcp-st7789 mirrors this 240x240 firmware framebuffer to the Waveshare HAT.
+hdmi_force_hotplug=1
+hdmi_group=2
+hdmi_mode=87
+hdmi_cvt=240 240 60 1 0 0 0
+hdmi_ignore_edid=0xa5000080
+
+# Joystick directions, press, and KEY1/2/3 become one evdev keyboard. Inputs
+# are active-low and use internal pull-ups. BCM pins match the Waveshare HAT.
+dtoverlay=gpio-key,gpio=6,keycode=103,label=up
+dtoverlay=gpio-key,gpio=19,keycode=108,label=down
+dtoverlay=gpio-key,gpio=5,keycode=105,label=left
+dtoverlay=gpio-key,gpio=26,keycode=106,label=right
+dtoverlay=gpio-key,gpio=13,keycode=28,label=enter
+dtoverlay=gpio-key,gpio=21,keycode=44,label=a
+dtoverlay=gpio-key,gpio=20,keycode=45,label=b
+dtoverlay=gpio-key,gpio=16,keycode=1,label=escape

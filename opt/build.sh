@@ -23,6 +23,7 @@ help()
   Options:
   -h, --help           Display a help screen and quit 
       --dev            Builds developer version of images
+      --emulation      Builds a standalone pi0 emulation image (requires --pi0)
       --no-clean       Leave previous build, target, and output files
       --skip-repo      Skip pulling repo, assume rootfs-overlay/opt is populated with app code
       --app-repo       Build image with not official seedsigner github repo
@@ -209,13 +210,17 @@ build_image() {
   fi
   
   if [ "${3}" != "skip-repo" ]; then
-    download_app_repo
+    if [[ "${config_name}" != *-emu ]]; then
+      download_app_repo
+    fi
   fi
 
-  # Both run unconditionally so --skip-repo builds get the same treatment. Order
-  # matters: write_version_json needs the .git/ and tools/ that the other removes.
-  write_version_json
-  delete_unnecessary_files
+  if [[ "${config_name}" != *-emu ]]; then
+    # Both run unconditionally so --skip-repo builds get the same treatment. Order
+    # matters: write_version_json needs the .git/ and tools/ that the other removes.
+    write_version_json
+    delete_unnecessary_files
+  fi
 
   # Setup external tree
   #make BR2_EXTERNAL="../${config_dir}/" O="${build_dir}" -C ./buildroot/ #2> /dev/null > /dev/null
@@ -285,6 +290,9 @@ while (( "$#" )); do
   --dev)
     DEVBUILD=0; shift
     ;;
+  --emulation)
+    EMULATIONBUILD=0; shift
+    ;;
   --app-repo=*)
     APP_REPO=$(echo "${1}" | cut -d "=" -f2-); shift
     ;;
@@ -344,6 +352,14 @@ echo $SKIPREPO_ARG
 DEVARG=""
 if ! [ -z $DEVBUILD ]; then
   DEVARG="-dev"
+fi
+
+if ! [ -z $EMULATIONBUILD ]; then
+  if [ -z $PI0_FLAG ] || [ ! -z $DEVBUILD ]; then
+    echo "--emulation requires --pi0 and cannot be combined with --dev" >&2
+    exit 3
+  fi
+  DEVARG="-emu"
 fi
 
 # check for custom app repo

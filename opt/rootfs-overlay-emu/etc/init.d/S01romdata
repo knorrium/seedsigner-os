@@ -1,0 +1,21 @@
+#!/bin/sh
+
+DATA_DEV=/dev/mmcblk0p2
+DATA_SYS=/sys/class/block/mmcblk0p2
+DATA_MNT=/mnt/romdata
+
+case "$1" in
+	start)
+		i=0
+		while [ ! -e "$DATA_SYS/dev" ] && [ "$i" -lt 10 ]; do sleep 1; i=$((i + 1)); done
+		if [ ! -b "$DATA_DEV" ] && [ -r "$DATA_SYS/dev" ]; then
+			mknod "$DATA_DEV" b $(sed 's/:/ /' "$DATA_SYS/dev")
+		fi
+		mkdir -p "$DATA_MNT"
+		mount -t ext4 -o nodev,nosuid,noexec "$DATA_DEV" "$DATA_MNT" || exit 0
+		mkdir -p "$DATA_MNT"/roms/gb "$DATA_MNT"/roms/nes "$DATA_MNT"/saves "$DATA_MNT"/states "$DATA_MNT"/config
+		;;
+	stop)
+		umount "$DATA_MNT" 2>/dev/null || true
+		;;
+esac
