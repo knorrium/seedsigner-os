@@ -4,6 +4,9 @@ export SDL_VIDEODRIVER=rpi
 export SDL_AUDIODRIVER=dummy
 export XDG_CONFIG_HOME=/mnt/romdata/config
 
+BOOT_LOG=/mnt/boot/emulation-boot.log
+echo "emulation-start launched" >> "$BOOT_LOG"
+
 # Start conservatively: no DMA and a 10 MHz SPI clock. Capture diagnostics on
 # the persistent partition so a failed headless boot can be inspected from the
 # SD card on another Linux machine.
@@ -13,6 +16,9 @@ fbcp_pid=$!
 sleep 2
 if ! kill -0 "$fbcp_pid" 2>/dev/null; then
 	echo "fbcp-st7789 exited during startup" >> /mnt/romdata/fbcp.log
+	echo "ERROR: fbcp-st7789 exited during startup" >> "$BOOT_LOG"
+else
+	echo "fbcp-st7789 started as PID $fbcp_pid" >> "$BOOT_LOG"
 fi
 
 # Wait until the persistent partition is mounted and initialized.
