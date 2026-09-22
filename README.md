@@ -20,6 +20,7 @@
 * [SeedSigner OS structure](docs/structure.md)
 * [Dev workflow](docs/dev_workflow.md)
 * [Customizing Buildroot](docs/customize_buildroot.md)
+* [Experimental Pi Zero emulation image](docs/emulation.md)
 
 <br/>
 

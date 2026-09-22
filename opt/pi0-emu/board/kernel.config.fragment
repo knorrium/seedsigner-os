@@ -7,6 +7,14 @@
 CONFIG_PM=y
 CONFIG_RASPBERRYPI_POWER=y
 
+# NET is selected by UNIX domain sockets in this kernel; explicitly suppress
+# protocol stacks and the default-on wireless menu.
+# CONFIG_INET is not set
+# CONFIG_PACKET is not set
+# CONFIG_WIRELESS is not set
+# CONFIG_WLAN is not set
+# CONFIG_BLUETOOTH is not set
+
 # GPIO keys are exposed as an evdev keyboard by a device-tree overlay.
 CONFIG_INPUT=y
 CONFIG_INPUT_EVDEV=y

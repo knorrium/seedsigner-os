@@ -7,7 +7,7 @@ RETROARCH_SOURCE = retroarch-sourceonly-$(RETROARCH_VERSION).tar.xz
 RETROARCH_SITE = https://github.com/libretro/RetroArch/releases/download/v$(RETROARCH_VERSION)
 RETROARCH_LICENSE = GPL-3.0+
 RETROARCH_LICENSE_FILES = COPYING
-RETROARCH_DEPENDENCIES = sdl2
+RETROARCH_DEPENDENCIES = sdl2 zlib host-pkgconf
 
 RETROARCH_CONF_OPTS = \
 	--host=$(GNU_TARGET_NAME) \
@@ -27,6 +27,7 @@ RETROARCH_CONF_OPTS = \
 	--disable-builtinmbedtls \
 	--disable-cdrom \
 	--disable-cheevos \
+	--disable-chd \
 	--disable-discord \
 	--disable-dsp_filter \
 	--disable-egl \
@@ -75,6 +76,7 @@ RETROARCH_CONF_OPTS = \
 	--disable-xmb
 
 RETROARCH_CONF_ENV = \
+	PKG_CONF_PATH="$(HOST_DIR)/bin/pkg-config" \
 	CC="$(TARGET_CC)" \
 	CXX="$(TARGET_CXX)" \
 	CFLAGS="$(TARGET_CFLAGS)" \
@@ -82,7 +84,14 @@ RETROARCH_CONF_ENV = \
 	LDFLAGS="$(TARGET_LDFLAGS)"
 
 RETROARCH_MAKE_ENV = $(TARGET_MAKE_ENV)
-RETROARCH_MAKE_OPTS = $(TARGET_CONFIGURE_OPTS)
+RETROARCH_MAKE_OPTS = \
+	CC="$(TARGET_CC)" \
+	CXX="$(TARGET_CXX)" \
+	AR="$(TARGET_AR)" \
+	CFLAGS="$(TARGET_CFLAGS)" \
+	CXXFLAGS="$(TARGET_CXXFLAGS)" \
+	CPPFLAGS="-I$(@D) -I$(@D)/libretro-common/include -I$(@D)/deps -I$(STAGING_DIR)/usr/include/SDL2" \
+	LDFLAGS="$(TARGET_LDFLAGS)"
 
 # RetroArch's configure script is custom rather than Autoconf.
 define RETROARCH_CONFIGURE_CMDS

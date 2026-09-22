@@ -19,6 +19,12 @@ FBCP_ST7789_CONF_OPTS = \
 	-DSPI_BUS_CLOCK_DIVISOR=6 \
 	-DSTATISTICS=0
 
+define FBCP_ST7789_FIX_VIDEOCORE_LINK
+	$(SED) 's/pthread bcm_host atomic/pthread bcm_host vchostif vchiq_arm vcos atomic/' \
+		$(@D)/CMakeLists.txt
+endef
+FBCP_ST7789_POST_PATCH_HOOKS += FBCP_ST7789_FIX_VIDEOCORE_LINK
+
 define FBCP_ST7789_CONFIGURE_CMDS
 	mkdir -p $(@D)/build
 	(cd $(@D)/build && $(HOST_DIR)/bin/cmake $(FBCP_ST7789_CONF_OPTS) ..)
