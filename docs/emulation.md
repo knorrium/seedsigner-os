@@ -86,3 +86,7 @@ Waveshare ST7789VW backend to transfer frames over SPI. This is why copying only
 The display mirror uses legacy VideoCore/DispmanX APIs that match the pinned
 Raspberry Pi 5.15 kernel and userland in this repository. Updating those
 components requires hardware retesting.
+
+For headless troubleshooting, the image writes `fbcp.log` and `retroarch.log`
+to the root of the `seedsigner-roms` partition. Mount that ext4 partition on a
+Linux computer after shutting down the Pi to inspect startup failures.

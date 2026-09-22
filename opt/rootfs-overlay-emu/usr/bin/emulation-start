@@ -4,7 +4,16 @@ export SDL_VIDEODRIVER=rpi
 export SDL_AUDIODRIVER=dummy
 export XDG_CONFIG_HOME=/mnt/romdata/config
 
-/usr/bin/fbcp-st7789 &
+# Start conservatively: no DMA and a 10 MHz SPI clock. Capture diagnostics on
+# the persistent partition so a failed headless boot can be inspected from the
+# SD card on another Linux machine.
+mkdir -p /mnt/romdata
+/usr/bin/fbcp-st7789 > /mnt/romdata/fbcp.log 2>&1 &
+fbcp_pid=$!
+sleep 2
+if ! kill -0 "$fbcp_pid" 2>/dev/null; then
+	echo "fbcp-st7789 exited during startup" >> /mnt/romdata/fbcp.log
+fi
 
 # Wait until the persistent partition is mounted and initialized.
 i=0
@@ -16,6 +25,8 @@ mkdir -p /mnt/romdata/config/retroarch
 
 # RGUI is usable at 240x240. Users select Load Content, then the matching core.
 while true; do
-	/usr/bin/retroarch --config /mnt/romdata/config/retroarch/retroarch.cfg --menu
+	/usr/bin/retroarch --verbose \
+		--config /mnt/romdata/config/retroarch/retroarch.cfg --menu \
+		>> /mnt/romdata/retroarch.log 2>&1
 	sleep 1
 done
