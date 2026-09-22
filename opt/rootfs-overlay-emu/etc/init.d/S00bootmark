@@ -1,0 +1,21 @@
+#!/bin/sh
+
+case "$1" in
+	start)
+		SYS=/sys/class/block/mmcblk0p1
+		DEV=/dev/mmcblk0p1
+		MNT=/mnt/boot
+		i=0
+		while [ ! -r "$SYS/dev" ] && [ "$i" -lt 10 ]; do sleep 1; i=$((i + 1)); done
+		if [ ! -b "$DEV" ] && [ -r "$SYS/dev" ]; then
+			mknod "$DEV" b $(sed 's/:/ /' "$SYS/dev")
+		fi
+		mkdir -p "$MNT"
+		mount -t vfat -o sync "$DEV" "$MNT" 2>/dev/null || exit 0
+		if [ -f "$MNT/BOOTTEST.txt" ]; then
+			mv "$MNT/BOOTTEST.txt" "$MNT/BOOTED.txt"
+		fi
+		printf 'Linux init reached S00bootmark\n' > "$MNT/emulation-boot.log"
+		sync
+		;;
+esac

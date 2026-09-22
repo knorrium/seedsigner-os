@@ -20,6 +20,10 @@ boot_delay=0
 disable_splash=1
 force_turbo=1
 
+# Diagnostic signal before Linux starts. If the ACT LED does not flash in this
+# pattern, firmware did not load this config/kernel from the SD card.
+dtparam=act_led_trigger=heartbeat
+
 ### Dev image additions ###
 
 # fbcp-st7789 mirrors this 240x240 firmware framebuffer to the Waveshare HAT.

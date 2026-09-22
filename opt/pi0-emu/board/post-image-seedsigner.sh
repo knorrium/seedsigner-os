@@ -16,6 +16,13 @@ ROOTPATH_TMP="$(mktemp -d)"
 
 rm -rf "${GENIMAGE_TMP}"
 
+cat > "${BINARIES_DIR}/BOOTTEST.txt" <<'EOF'
+SeedSigner emulation diagnostic image
+
+If this file is visible, the newly built pi0-emu image was flashed.
+At runtime Linux renames this file to BOOTED.txt as its first init action.
+EOF
+
 genimage \
 	--rootpath "${ROOTPATH_TMP}"   \
 	--tmppath "${GENIMAGE_TMP}"    \
