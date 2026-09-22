@@ -6,6 +6,8 @@
 # Power domains are required for BCM2835 graphics/display firmware.
 CONFIG_PM=y
 CONFIG_RASPBERRYPI_POWER=y
+CONFIG_DEVTMPFS=y
+CONFIG_DEVTMPFS_MOUNT=y
 
 # NET is selected by UNIX domain sockets in this kernel; explicitly suppress
 # protocol stacks and the default-on wireless menu.

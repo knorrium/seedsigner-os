@@ -10,6 +10,8 @@ rm -f "${TARGET_DIR}"/etc/init.d/S02mdev
 rm -f "${TARGET_DIR}"/etc/init.d/S20seedrng
 rm -f "${TARGET_DIR}"/etc/init.d/S40network
 rm -f "${TARGET_DIR}"/etc/init.d/S50pigpio
+rm -f "${TARGET_DIR}"/etc/init.d/S02seedsigner
+rm -f "${TARGET_DIR}"/start.sh
 
 # The emulation image must never contain signing software or wallet libraries.
 if [ -e "${TARGET_DIR}/opt/src/seedsigner" ]; then
